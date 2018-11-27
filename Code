@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <math.h>
+
+float foo_tov(float r,float p,float rho)
+{
+  float mass,pressure,avg_rho;
+    
+  mass = 4*M_PI*r*r;
+  avg_rho = 3*mass/(4*M_PI*pow(r,3));
+  pressure = -(4*M_PI*r/3)*((rho + p)*(avg_rho + 3*p))/(1-2*mass/r); //need to make this dimensionless.
+  
+  return pressure;
+}
+
+
+int main()
+{
+  float r,p,rho,res1,res2,res3,rmax,rmin,delr;
+  rmin = 1.;
+  rmax = 10.;
+  delr = (rmax-rmin)/256.;
+  r = 1.;
+  p = -1.;
+  rho = 1.;
+  for(r = rmin;r<=rmax;r+=delr)
+    {
+      res1 = r + foo_tov(r,p,rho)*delr/2;
+      res2 = p + foo_tov(r,p,rho)*delr/2;
+      res3 = rho + foo_tov(r,p,rho)*delr/2;
+
+      p += delr*foo_tov(res1,res2,res3);
+      rho += delr*foo_tov(res1,res2,res3);
+      
+      printf("%f %f\n",r,p);
+    }
+  return 0;
+}
