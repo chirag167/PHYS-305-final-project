@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <math.h>
+
+float foo_tov(float r,float p,float rho)
+{
+  float dm,dp,e;
+  
+  dm = rho*r*r;
+  e = pow(10,-6); // to "soften" the pressure. Since we are starting at r = 0, the pressure equation is going to return nan (denominator)
+  dp = -(rho+p)*(dm/(r*(r-2.0*dm)+e)+ p*pow(r,2.0)/(r-2.0*dm+e)); //the dimensionless equn for isotropic TOV.
+  
+  return dp;
+}
+
+
+int main()
+{
+  float r,p,m,rho,res2,res3,rmax,rmin,delr;
+  rmin = 0.;
+  rmax = 1.;
+  delr = (rmax-rmin)/256.;
+  r = 0.;
+  p = -1.;
+  m = 1;
+  for(r = rmin;r<=rmax;r+=delr)
+    {
+      rho = -p;
+      res3 = m + foo_tov(r+delr/2,m,rho)*delr/2.;
+      res2 = p + foo_tov(r+delr/2,p,rho)*delr/2.;
+      
+      m += delr*foo_tov(r,res3,rho);
+      p += delr*foo_tov(r,res2,m);
+     
+      
+      printf("%e %e\n",r,p);
+    }
+  return 0;
+}
